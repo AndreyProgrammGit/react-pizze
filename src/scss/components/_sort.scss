@@ -20,6 +20,13 @@
       border-bottom: 1px dashed $orange;
       cursor: pointer;
     }
+
+    @media (max-width: 440px) {
+
+      span {
+        width: 85px;
+      }
+    }
   }
 
   &__popup {

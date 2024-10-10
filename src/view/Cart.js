@@ -1,22 +1,31 @@
 import React, { useReducer, useState } from "react";
 import {
+  addToCart,
+  buttonMinus,
+  buttonPlus,
   removeAllFromCart,
   removeOneFromCart,
   selectAll,
 } from "../redux/slice/cartSlice";
 import store from "../redux/store/store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function Cart({ getCountItems }) {
-  const cartItem = selectAll(store.getState());
+  // const cartItem = selectAll(store.getState());
+  const cartItem = useSelector((state) => state.cart.items);
+  const [isCount, setIsCount] = useState();
   const [_, forceUpdate] = useReducer((x) => !x);
   const dispatch = useDispatch();
 
   getCountItems(cartItem);
 
+  const getCountPizza = (arg) => {
+    setIsCount(arg);
+  };
+
   const renderItems = (obj) => {
-    return obj.map(({ title, price, size, type, id }) => (
+    return obj.map(({ title, price, size, type, id, count }) => (
       <CartItem
         key={id}
         id={id}
@@ -24,6 +33,8 @@ export default function Cart({ getCountItems }) {
         price={price}
         size={size}
         type={type}
+        count={count}
+        getCountPizza={getCountPizza}
         forceUpdate={forceUpdate}
       />
     ));
@@ -37,14 +48,25 @@ export default function Cart({ getCountItems }) {
   const reducePrice = (arr) => {
     return arr.map((obj) => {
       let price = obj.price;
-      return price + obj.price;
+      return price;
     });
   };
 
   const initialValue = 0;
 
   const content = renderItems(cartItem);
-  const price = reducePrice(cartItem).reduce(
+  const newPrice = (obj) => {
+    return obj.map((obj) => {
+      const price = obj.price;
+      return {
+        ...obj,
+        price: price * isCount,
+      };
+    });
+  };
+  console.log(newPrice(cartItem));
+  const any = newPrice(cartItem);
+  const price = reducePrice(any).reduce(
     (acum, curr) => acum + curr,
     initialValue
   );
@@ -175,8 +197,29 @@ export default function Cart({ getCountItems }) {
   );
 }
 
-const CartItem = ({ title, price, size, type, id, forceUpdate }) => {
+const CartItem = ({
+  title,
+  price,
+  size,
+  type,
+  id,
+  count,
+  forceUpdate,
+  getCountPizza,
+}) => {
+  const [isPrice, setIsPrice] = useState(price);
+  const [isCount, setIsCount] = useState(count);
   const dispatch = useDispatch();
+  getCountPizza(isCount);
+
+  const countButtonAdd = () => {
+    setIsCount((prev) => prev + 1);
+    dispatch(buttonPlus());
+  };
+  const countButtonRemove = () => {
+    setIsCount((prev) => prev - 1);
+    dispatch(buttonMinus());
+  };
 
   const handleCLick = () => {
     dispatch(removeOneFromCart(id));
@@ -200,7 +243,10 @@ const CartItem = ({ title, price, size, type, id, forceUpdate }) => {
             </p>
           </div>
           <div className="cart__item-count">
-            <div className="button button--outline button--circle cart__item-count-minus">
+            <div
+              onClick={() => countButtonRemove()}
+              className="button button--outline button--circle cart__item-count-minus"
+            >
               <svg
                 width="10"
                 height="10"
@@ -218,8 +264,11 @@ const CartItem = ({ title, price, size, type, id, forceUpdate }) => {
                 />
               </svg>
             </div>
-            <b>2</b>
-            <div className="button button--outline button--circle cart__item-count-plus">
+            <b>{isCount}</b>
+            <div
+              onClick={() => countButtonAdd()}
+              className="button button--outline button--circle cart__item-count-plus"
+            >
               <svg
                 width="10"
                 height="10"
@@ -239,7 +288,7 @@ const CartItem = ({ title, price, size, type, id, forceUpdate }) => {
             </div>
           </div>
           <div className="cart__item-price">
-            <b>{price * 2}</b>
+            <b>{isPrice * isCount}</b>
           </div>
           <div
             onClick={() => {

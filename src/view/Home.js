@@ -22,10 +22,7 @@ export default function Home() {
           <Sort getValueSort={getValueSort} />
         </div>
         <h2 className="content__title">Все пиццы</h2>
-        <div
-          className="content__items"
-          style={{ justifyContent: "flex-start" }}
-        >
+        <div className="content__items">
           <Pizza sort={valueSort} categories={categories} />
         </div>
       </div>
