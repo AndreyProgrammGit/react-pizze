@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { increment } from "../../redux/slice/pizzaSlice";
 import Skeleton from "../skeleton/Skeleton";
 import { useDispatch, useSelector } from "react-redux";
 import store from "../../redux/store/store";
